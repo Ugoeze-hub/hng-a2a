@@ -14,7 +14,6 @@ class FactCheckerAgent:
 
         self.model = genai.GenerativeModel(
             'gemini-2.5-flash',
-            tools='google_search' 
         )
 
     async def check_fact(self, claim: str):
