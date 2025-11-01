@@ -17,7 +17,10 @@ app = FastAPI(
 
 fact_checker = FactCheckerAgent()
 
+@app.get("/")
+@app.get("/kaithheathcheck")   
 @app.get("/kaithhealthcheck")
+@app.get("/health")
 async def healthcheck():
     return {"status": "Agent is working",
             "agent": "fact-checker",
