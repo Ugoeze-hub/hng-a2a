@@ -1,13 +1,19 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
-import os
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from schemas import A2AMessage, A2ARequest, A2AResponse, FactCheckResult
+import os
+from uuid import uuid4
+from schemas import JsonRpcRequest, JsonRpcResponse, JsonRpcError, ResponseMessage, MessagePart, ResponseStatus, A2AMessage
 from fact_checker_agent import FactCheckerAgent
 
 load_dotenv()
 
-app = FastAPI(title="Fact Checker Agent")
+app = FastAPI(
+    title="Fact Checker Agent",
+    description="Your very own smart-ass colleague",
+    version="1.0.0"
+       )
 
 fact_checker = FactCheckerAgent()
 
@@ -15,48 +21,85 @@ fact_checker = FactCheckerAgent()
 async def healthcheck():
     return {"status": "Agent is working",
             "agent": "fact-checker",
-            "version": "1.0"}
+            "version": "1.0",
+            "protocol": "JSON-RPC 2.0"
+            }
 
-@app.post("/a2a/agent/factchecker")
-async def fact_checker_route(request: A2ARequest):
+@app.post("/a2a/factchecker")
+async def fact_checker_route(request: JsonRpcRequest):
     try:
-        user_messages = [msg for msg in request.messages if msg.role == "user"]
-        
-        if not user_messages:
-            return JSONResponse(
-                status_code = 400,
-                content={"error": "No User message found"}
-            )
-        claim = user_messages[-1].content
+        user_messages = request.params.message
 
-        greetings = ["hi", "hello", "hey", "help", "what can you do"]
+        claim = ""
+        for part in user_messages.parts:
+            if part.kind == "text" and part.text:
+                claim += part.text + " "
+            
+        claim = claim.strip()
+            
+        if not claim:
+            return JSONResponse(
+                id=request.id,
+                error={
+                    "code": -32602,
+                    "message": "No text content found in message"
+                }
+            )
+
+        greetings = ["hi", "hello", "hey", "help", "what can you do", "what do you do", "you do", "your purpose", "your task"]
         if claim.lower().strip() in greetings:
-            help_text = """Hello! I'm a Fact Checker AI.
+            help_text = """**Hello! I'm a Fact Checker AI.**
             I can help you verify claims and statements. Just send me any claim you want me to check!
 
-            Examples:
+            **Examples:**
             - "The Earth is flat"
             - "Coffee is bad for your health"
             - "Python is the most popular programming language"
+            - Or any other claim
 
-            I'll search for reliable sources and give you a verdict with explanation."""
-        
-            return A2AResponse(
+            Send me any claim to check!"""
+            
+            response_message = A2AMessage(
                 role="assistant",
-                content=help_text
+                parts=[MessagePart(kind="text", text=help_text)],
+                # messageId=str(uuid4()), 
+                # taskId=request.params.message.taskId  
+            )
+        
+            return JsonRpcResponse(
+                id=request.id,
+                result=ResponseMessage(
+                    id=str(uuid4()),
+                    status=ResponseStatus(state="completed"),
+                    message=response_message,
+                    history=[request.params.message, response_message]
+                )
             )
         
         result = await fact_checker.check_fact(claim)
-        
-        return A2AResponse(
-            role="assistant",
-            content=result
-        )
-    
+
+
+        response_message = A2AMessage(
+                role="assistant",
+                parts=[MessagePart(kind="text", text=result)]
+            )
+
+        return JsonRpcResponse(
+            id=request.id,
+            result=ResponseMessage(
+                id=str(uuid4()),
+                status=ResponseStatus(state="completed"),
+                    message=response_message,
+                    history=[request.params.message, response_message]
+                )
+            )
     except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
+        return JsonRpcError(
+            id=request.id if hasattr(request, 'id') else "unknown",
+            error={
+                "code": -32603,
+                "message": f"Internal error: {str(e)}"
+            }
         )
 
 if __name__ == "__main__":

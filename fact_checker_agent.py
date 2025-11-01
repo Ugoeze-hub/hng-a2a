@@ -1,8 +1,8 @@
 import google.generativeai as genai
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 
 class FactCheckerAgent:
     def __init__(self):
@@ -12,9 +12,7 @@ class FactCheckerAgent:
         
         genai.configure(api_key=api_key)
 
-        self.model = genai.GenerativeModel(
-            'gemini-2.5-flash',
-        )
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
     async def check_fact(self, claim: str):
         prompt = f"""You are an expert fact-checker. Analyze this claim using web search:
@@ -24,10 +22,10 @@ class FactCheckerAgent:
             Please provide:
 
             1. **Verdict**: 
-            - ✅ TRUE
-            - ❌ FALSE  
-            - ⚠️ PARTIALLY TRUE
-            - ❓ UNVERIFIABLE
+            - TRUE
+            - FALSE  
+            - PARTIALLY TRUE
+            - UNVERIFIABLE
 
             2. **Confidence Level**: High / Medium / Low
 
@@ -42,7 +40,11 @@ class FactCheckerAgent:
 
             5. **Sources**: List credible sources you found
 
-            Be objective, factual, and cite your sources."""
+            Be objective, factual, and cite your sources.
+            
+            Make sure you are recent, be in tune with the time and date of the response and give updated responses that are factual
+            
+            Reciprocate the same energy as the user, be it happy, rude or non-chalant"""
         
         try:
             response = self.model.generate_content(prompt)
