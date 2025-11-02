@@ -20,7 +20,6 @@ class A2AMessage(BaseModel):
 
 class MessageConfiguration(BaseModel):
     blocking: bool = True
-    acceptedOutputModes: List[str] = ["text/plain", "text/markdown"]
 
 class MessageParams(BaseModel):
     message: A2AMessage
@@ -42,13 +41,14 @@ class Artifact(BaseModel):
     parts: List[MessagePart]
 
 class ResponseMessage(BaseModel):
+    kind: Literal["task"] = "task"
     id : str
     contextId: Optional[str] = None #str = Field(default_factory=lambda: str(uuid4()))
     status: ResponseStatus
     message: A2AMessage
     artifacts: List[Artifact] = []
     history: List[A2AMessage] = []
-    kind: Literal["task"] = "task"
+    
 
 
 class JsonRpcResponse(BaseModel):

@@ -37,6 +37,8 @@ async def fact_checker_route(request: JsonRpcRequest):
         for part in user_messages.parts:
             if part.kind == "text" and part.text:
                 claim += part.text + " "
+            elif part.kind == "data" and part.data:
+                claim += part.data
             
         claim = claim.strip()
             
@@ -63,10 +65,10 @@ async def fact_checker_route(request: JsonRpcRequest):
             Send me any claim to check!"""
             
             response_message = A2AMessage(
-                role="assistant",
+                role="agent",
                 parts=[MessagePart(kind="text", text=help_text)],
-                # messageId=str(uuid4()), 
-                # taskId=request.params.message.taskId  
+                messageId=str(uuid4()), 
+                taskId=request.id  
             )
         
             artifact = Artifact(
@@ -78,7 +80,8 @@ async def fact_checker_route(request: JsonRpcRequest):
             return JsonRpcResponse(
                 id=request.id,
                 result=ResponseMessage(
-                    id=str(uuid4()),
+                    id=request.id,
+                    contextId=str(uuid4()),
                     status=ResponseStatus(state="completed"),
                     message=response_message,
                     artifacts=[artifact],
@@ -90,8 +93,10 @@ async def fact_checker_route(request: JsonRpcRequest):
 
 
         response_message = A2AMessage(
-                role="assistant",
-                parts=[MessagePart(kind="text", text=result)]
+                role="agent",
+                parts=[MessagePart(kind="text", text=result)],
+                messageId=str(uuid4()),
+                taskId=request.id
             )
         artifact = Artifact(
                 artifactId = str(uuid4()),
@@ -102,7 +107,7 @@ async def fact_checker_route(request: JsonRpcRequest):
         return JsonRpcResponse(
             id=request.id,
             result=ResponseMessage(
-                id=str(uuid4()),
+                id=request.id,
                 status=ResponseStatus(state="completed"),
                 message=response_message,
                 artifacts=[artifact],
