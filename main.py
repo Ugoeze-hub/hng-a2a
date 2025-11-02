@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 import os
 from uuid import uuid4
-from schemas import JsonRpcRequest, JsonRpcResponse, JsonRpcError, ResponseMessage, MessagePart, ResponseStatus, A2AMessage
+from schemas import JsonRpcRequest, JsonRpcResponse, JsonRpcError, ResponseMessage, MessagePart, ResponseStatus, A2AMessage, Artifact
 from fact_checker_agent import FactCheckerAgent
 
 load_dotenv()
@@ -69,12 +69,19 @@ async def fact_checker_route(request: JsonRpcRequest):
                 # taskId=request.params.message.taskId  
             )
         
+            artifact = Artifact(
+                artifactId = str(uuid4()),
+                name =  "factCheckerAgentResponse",
+                parts = [MessagePart(kind="text", text=help_text)]
+            )
+
             return JsonRpcResponse(
                 id=request.id,
                 result=ResponseMessage(
                     id=str(uuid4()),
                     status=ResponseStatus(state="completed"),
                     message=response_message,
+                    artifacts=[artifact],
                     history=[request.params.message, response_message]
                 )
             )
@@ -86,14 +93,20 @@ async def fact_checker_route(request: JsonRpcRequest):
                 role="assistant",
                 parts=[MessagePart(kind="text", text=result)]
             )
+        artifact = Artifact(
+                artifactId = str(uuid4()),
+                name =  "factCheckerAgentResponse",
+                parts = [MessagePart(kind="text", text=result)]
+                )
 
         return JsonRpcResponse(
             id=request.id,
             result=ResponseMessage(
                 id=str(uuid4()),
                 status=ResponseStatus(state="completed"),
-                    message=response_message,
-                    history=[request.params.message, response_message]
+                message=response_message,
+                artifact=[artifact],
+                history=[request.params.message, response_message]
                 )
             )
     except Exception as e:
