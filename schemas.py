@@ -4,10 +4,11 @@ from uuid import uuid4
 from datetime import datetime, timezone
 
 class MessagePart(BaseModel):
-    kind: Literal["text", "image", "file"]
+    kind: Literal["text", "image", "file", "data"]
     text: Optional[str] = None
-    data: Optional[Dict[str, Any]] = None
+    data: Optional[ Any] = None
     url: Optional[str] = None
+    file_url: Optional[str] = None
 
 class A2AMessage(BaseModel):
     kind: Literal["message"] = "message"
@@ -28,7 +29,7 @@ class MessageParams(BaseModel):
 class JsonRpcRequest(BaseModel):
     jsonrpc: Literal["2.0"] = "2.0"
     id: str
-    method: Literal["chat"] = "chat"
+    method: str
     params: MessageParams
 
 class ResponseStatus(BaseModel):
