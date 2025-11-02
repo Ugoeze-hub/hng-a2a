@@ -105,7 +105,7 @@ async def fact_checker_route(request: JsonRpcRequest):
                 id=str(uuid4()),
                 status=ResponseStatus(state="completed"),
                 message=response_message,
-                artifact=[artifact],
+                artifacts=[artifact],
                 history=[request.params.message, response_message]
                 )
             )
