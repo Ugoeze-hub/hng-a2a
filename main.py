@@ -35,11 +35,14 @@ async def fact_checker_route(request: JsonRpcRequest):
 
         claim = ""
         for part in user_messages.parts:
-            if part.kind == "text" and part.text:
-                claim += part.text + " "
-            elif part.kind == "data" and part.data:
-                claim += part.data
+            if part.kind != "text":
+                continue
+    
+            if not part.text:
+                continue
             
+            claim += part.text + " "
+                
         claim = claim.strip()
             
         if not claim:
