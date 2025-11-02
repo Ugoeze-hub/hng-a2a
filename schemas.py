@@ -33,7 +33,7 @@ class JsonRpcRequest(BaseModel):
 
 class ResponseStatus(BaseModel):
     state: Literal["completed", "failed", "working"]
-    # timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class Artifact(BaseModel):
     artifactId: str = Field(default_factory=lambda: str(uuid4()))
