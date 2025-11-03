@@ -37,7 +37,7 @@ User → Telex.im → A2A Protocol (JSON-RPC 2.0) → FastAPI Agent → Gemini A
 - Python 3.12+
 - Gemini API Key
 
-## 🛠️ Installation
+## Installation
 
 ### 1. Clone the Repository
 ```bash
@@ -107,11 +107,11 @@ Server will start at `http://localhost:8000`
 ## Error Handling
 
 The agent handles:
-- ✅ Invalid JSON-RPC requests
-- ✅ Missing or empty claims
-- ✅ Gemini API failures
-- ✅ Network timeouts
-- ✅ Malformed A2A messages
+- Invalid JSON-RPC requests
+- Missing or empty claims
+- Gemini API failures
+- Network timeouts
+- Malformed A2A messages
 
 All errors return proper JSON-RPC error responses with codes:
 - `-32602`: Invalid params (no text content)
@@ -125,7 +125,7 @@ This is an HNG internship project. Contributions are welcome after the evaluatio
 
 MIT License - see LICENSE file
 
-## 👤 Author
+## Author
 
 **Your Name**
 - GitHub: [Ugoeze-hub](https://github.com/ugoeze-hub)
@@ -149,4 +149,4 @@ MIT License - see LICENSE file
 
 ---
 
-Built with ❤️ for HNG Stage 3 Backend Task
+Built for HNGi13 Stage 3 Backend Task
