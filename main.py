@@ -71,11 +71,11 @@ async def fact_checker_route(request: JsonRpcRequest):
                 role="agent",
                 parts=[MessagePart(kind="text", text=help_text)],
                 messageId=str(uuid4()), 
-                taskId=request.id  
+                taskId=str(uuid4()) 
             )
         
             artifact = Artifact(
-                artifactId = str(uuid4()),
+                artifactId = f'artifact-{str(uuid4())}',
                 name =  "factCheckerAgentResponse",
                 parts = [MessagePart(kind="text", text=help_text)]
             )
@@ -83,10 +83,9 @@ async def fact_checker_route(request: JsonRpcRequest):
             return JsonRpcResponse(
                 id=request.id,
                 result=ResponseMessage(
-                    id=request.id,
-                    contextId=str(uuid4()),
-                    status=ResponseStatus(state="completed"),
-                    message=response_message,
+                    id=f'task-{str(uuid4())}',
+                    contextId=f'ctx-{str(uuid4())}',
+                    status=ResponseStatus(state="completed", message=response_message),
                     artifacts=[artifact],
                     history=[request.params.message, response_message]
                 )
@@ -99,10 +98,10 @@ async def fact_checker_route(request: JsonRpcRequest):
                 role="agent",
                 parts=[MessagePart(kind="text", text=result)],
                 messageId=str(uuid4()),
-                taskId=request.id
+                taskId=str(uuid4())
             )
         artifact = Artifact(
-                artifactId = str(uuid4()),
+                artifactId = f'artifact-{str(uuid4())}',
                 name =  "factCheckerAgentResponse",
                 parts = [MessagePart(kind="text", text=result)]
                 )
@@ -110,19 +109,19 @@ async def fact_checker_route(request: JsonRpcRequest):
         return JsonRpcResponse(
             id=request.id,
             result=ResponseMessage(
-                id=request.id,
-                status=ResponseStatus(state="completed"),
-                message=response_message,
+                id=f'task-{str(uuid4())}',
+                contextId=f'ctx-{str(uuid4())}',
+                status=ResponseStatus(state="completed", message=response_message,),
                 artifacts=[artifact],
                 history=[request.params.message, response_message]
                 )
             )
     except Exception as e:
-        return JsonRpcError(
-            id=request.id if hasattr(request, 'id') else "unknown",
-            error={
-                "code": -32603,
-                "message": f"Internal error: {str(e)}"
-            }
-        )
+        return JSONResponse(
+                id=request.id,
+                error={
+                    "code": -32602,
+                    "message": "No text content found in message"
+                }
+            )
 

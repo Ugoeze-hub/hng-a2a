@@ -9,14 +9,14 @@ class MessagePart(BaseModel):
     data: Optional[ Any] = None
     url: Optional[str] = None
     file_url: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None  
 
 class A2AMessage(BaseModel):
     kind: Literal["message"] = "message"
     role: str
     parts: List[MessagePart]
-    messageId: Optional[str] = None #str = Field(default_factory=lambda: str(uuid4()))
-    taskId:  Optional[str] = None #str = Field(default_factory=lambda: str(uuid4()))
-    #metadata: Optional[Dict[str, Any]] = None
+    messageId: Optional[str] = None 
+    taskId:  Optional[str] = None 
 
 class MessageConfiguration(BaseModel):
     blocking: bool = True
@@ -34,6 +34,7 @@ class JsonRpcRequest(BaseModel):
 class ResponseStatus(BaseModel):
     state: Literal["completed", "failed", "working"]
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    message: A2AMessage
 
 class Artifact(BaseModel):
     artifactId: str = Field(default_factory=lambda: str(uuid4()))
@@ -43,9 +44,8 @@ class Artifact(BaseModel):
 class ResponseMessage(BaseModel):
     kind: Literal["task"] = "task"
     id : str
-    contextId: Optional[str] = None #str = Field(default_factory=lambda: str(uuid4()))
+    contextId: Optional[str] = None 
     status: ResponseStatus
-    message: A2AMessage
     artifacts: List[Artifact] = []
     history: List[A2AMessage] = []
     
@@ -55,9 +55,12 @@ class JsonRpcResponse(BaseModel):
     jsonrpc: Literal["2.0"] = "2.0"
     id: str
     result: Optional[ResponseMessage] = None
+    error: Optional[Dict[str, Any]] = None
 
 class JsonRpcError(BaseModel):
     jsonrpc: Literal["2.0"] = "2.0"
     id: str
-    error: Optional[Dict[str, Any]] = None
+    result: Optional[ResponseMessage] = None
+    error: Optional[Dict[str, Any]]
+    
 
