@@ -14,7 +14,7 @@ An intelligent fact-checking agent built for the HNG Stage 3 Backend Task. This 
 
 ## Live Demo
 
-**Try it on Telex.im**: [Join Telex](https://telex.im) and search for "Telex-gpt"
+**Try it on Telex.im**: search for "Telex-gpt" (Although only available in the hng organization)
 
 **API Endpoint**: `https://hng-a2a-ugoeze-hub7559-2ozzo1oj.leapcell.dev/a2a/factchecker`
 
